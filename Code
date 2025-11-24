@@ -1,0 +1,53 @@
+import cv2
+import imutils
+
+cap = cv2.VideoCapture(0)
+if not cap.isOpened():
+    print("cannot open camera")
+    raise SystemExit
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    small = imutils.resize(frame, width=640)
+    gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (5,5), 0)
+    edged = cv2.Canny(blur, 40, 120)
+
+    cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    out = small.copy()
+    found = False
+
+    for c in cnts:
+        area = cv2.contourArea(c)
+        if area < 2000:
+            continue
+
+        x,y,w,h = cv2.boundingRect(c)
+        aspect = w / float(h) if h != 0 else 0
+        hull = cv2.convexHull(c)
+        hull_area = cv2.contourArea(hull) if cv2.contourArea(hull) != 0 else 1
+        solidity = area / float(hull_area)
+
+        if area > 3000 and aspect > 1.4 and aspect < 6.0 and solidity > 0.35:
+            cv2.rectangle(out, (x,y), (x+w, y+h), (0,0,255), 2)
+            cv2.putText(out, "POSSIBLE GUN-SHAPE", (x, y-6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
+            found = True
+
+        if area > 4000 and (w > h*1.8 or h > w*1.8):
+            cv2.rectangle(out, (x,y), (x+w, y+h), (0,165,255), 2)
+            cv2.putText(out, "POSSIBLE LONG-SHAPE", (x, y-18), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0,165,255), 1)
+            found = True
+
+    status = "ALERT" if found else "CLEAR"
+    cv2.putText(out, "STATUS: " + status, (10,20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 2)
+
+    cv2.imshow("gun_shape", out)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
