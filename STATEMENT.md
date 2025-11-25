@@ -1,3 +1,3 @@
-Project Statement: Gun Detection in Python
+Project Statement: Gun Detection in Python.
 This project aims to develop a real-time gun detection system utilizing Python along with machine learning and computer vision libraries such as OpenCV and TensorFlow. The core objective is to accurately identify the presence of firearms in images or live video feeds to enhance public safety, particularly in high-risk environments like public venues and schools. The system uses advanced object detection techniques, including convolutional neural networks (CNNs) and the YOLO (You Only Look Once) algorithm, to detect guns with high precision and low false positive rates. Image data preprocessing, bounding box visualization, and instant alert mechanisms are integral parts of the solution, ensuring both usability and reliability in practical scenarios.
 This statement highlights the technical foundation, the real-world motivation, and the desired impact of the project.
